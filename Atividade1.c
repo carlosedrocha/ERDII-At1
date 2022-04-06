@@ -14,18 +14,21 @@
 // O programa deverá ter uma tela com as seguintes opções:
 //
 // Inserção de Novo Cliente (Se o Time conseguir, seria interessante que fosse em ordem alfabética) = Feito
-// Remoção de um Cliente = NAO IMPLEMENTADO
-// Buscar um Cliente para atualizar o número de prestações pagas. Caso seja a última prestação do Cliente, deve ser impresso um aviso e o nome dele retirado da lista = NAO IMPLEMENTADO
-// Busca de um cliente – Impressão das informações com o valor do Saldo devedor, considerando que sempre serão parcelas iguais e que se houve uma entrada não foi considerada no Valor da Dívida = NAO IMPLEMENTADO
-// Impressão do nome de todos os Clientes da Lista com o número de prestações que faltam pagar e o saldo devedor = NAO IMPLEMENTADO
+// Remoção de um Cliente = Feito
+// Buscar um Cliente para atualizar o número de prestações pagas. Caso seja a última prestação do Cliente, deve ser impresso um aviso e o nome dele retirado da lista = Feito
+// Busca de um cliente – Impressão das informações com o valor do Saldo devedor, considerando que sempre serão parcelas iguais e que se houve uma entrada não foi considerada no Valor da Dívida = Feito
+// Impressão do nome de todos os Clientes da Lista com o número de prestações que faltam pagar e o saldo devedor = Feito
 //}
 
 
 
 //Definicao struct que armazena os dados dos clientes solicitados para o exercicio
 #include <stdio.h>
-#include<stdlib.h>
+#include <stdlib.h>
 #include <string.h>
+#include <locale.h>
+#include <ctype.h>
+
 
 typedef struct data
 {
@@ -67,7 +70,7 @@ typedef struct lista
 Lista* criarLista(){
     Lista* lista = (Lista*)malloc(sizeof(Lista));
 
-    lista->tam = 0;
+    lista->tam = NULL;
     lista->primeiroNoLista = NULL;
 
     return lista;
@@ -96,23 +99,26 @@ void solicitaDadosCliente(DadosCliente *dados){
     ////data
     printf("\nDigite o dia da compra: ");
     scanf("%d",&dados->dataCompra.dia);
+    verificaDataDia(dados);
 
     printf("\nDigite o mes da compra: ");
     scanf("%d",&dados->dataCompra.mes);
     fflush(stdin);
-
+    verificaDataMes(dados);
 
     printf("\nDigite o ano da compra: ");
     scanf("%d",&dados->dataCompra.ano);
     fflush(stdin);
+    verificaDataAno(dados);
 
     printf("\nDigite o numero de prestacoes: ");
-    scanf("%d",&dados->dataCompra);
+    scanf("%d",&dados->numPrestacoes);
     fflush(stdin);
 
     printf("\nDigite o numero de prestacoes pagas: ");
-    scanf("%d",&dados->numPrestacoes);
+    scanf("%d",&dados->numPrestacoesPagas);
     fflush(stdin);
+    verificaPrestacoesPagas(dados);
 
     printf("\nDigite o valor da divida: ");
     scanf("%f",&dados->valorDivida);
@@ -121,7 +127,7 @@ void solicitaDadosCliente(DadosCliente *dados){
     printf("\n||||||||||||||||||||||||||||||||||||||||||||||||\n");
 
     //printf("\n\n\tNOME: %s\n\n\tDATA: %d\n\n\tVALOR: %f",dados->nomeCliente, dados->dataCompra.dia, dados->valorDivida);
-    printf("\nData: %i/%i/%i \n",dados->dataCompra.dia,dados->dataCompra.mes,dados->dataCompra.ano);
+    printf("\nData: %d/%d/%d \n",dados->dataCompra.dia,dados->dataCompra.mes,dados->dataCompra.ano);
     printf("\nNome: %s\nValor da divida: %.2f\n",dados->nomeCliente,dados->valorDivida);
 
     printf("\n||||||||||||||||||||||||||||||||||||||||||||||||\n");
@@ -130,21 +136,109 @@ void solicitaDadosCliente(DadosCliente *dados){
 
 }
 
-//Imprime os dados: e o tamanho da lista
-void imprime (Lista *recebida){
+//Verifica se o dia inputado é válido
+void verificaDataDia(DadosCliente* dados){
 
-    NoDadosCliente *no = recebida->primeiroNoLista;; /* variável auxiliar para percorrer a lista */
+    int retorno;
+    char letra;
 
-    while(no != NULL){
-        printf("\ncliente = %s\n", no->dados.nomeCliente);
-        printf("\n\tValor: %f", no->dados.valorDivida);
-        no = no->proximo;
-    }
-    printf("\nTamanho: %d", recebida->tam);
+    do{
+        do{
+            printf("\nDia invalido, digite um dia valido: ");
+            retorno= scanf("%d",&dados->dataCompra.dia);
+            do{
+                letra=getchar();
+            }while(letra!='\n');
+
+        }while(retorno==0);
+   }while(dados->dataCompra.dia < 1 || dados->dataCompra.dia > 31);
+
 }
 
-//Funcao para buscar noDadosCliente passando o nome como referencia de busca
-int buscarNome (Lista *lista){
+//Verifica se o mes inputado é válido
+void verificaDataMes(DadosCliente* dados){
+    
+    int retorno;
+    char letra;
+
+    do{
+        do{
+            printf("\nMes invalido, digite um mes valido: ");
+            retorno= scanf("%d",&dados->dataCompra.mes);
+            do{
+                letra=getchar();
+            }while(letra!='\n');
+
+        }while(retorno==0);
+   }while(dados->dataCompra.mes < 1 || dados->dataCompra.mes > 12);
+}
+
+//Verifica se o dia inputado é válido
+void verificaDataAno(DadosCliente* dados){
+    
+    int retorno;
+    char letra;
+
+    do{
+        do{
+            printf("\nAno invalido, digite um ano valido: ");
+            retorno= scanf("%d",&dados->dataCompra.ano);
+            do{
+                letra=getchar();
+            }while(letra!='\n');
+
+        }while(retorno==0);
+   }while(dados->dataCompra.ano < 1999 || dados->dataCompra.ano > 2021);
+}
+
+//Verifica se o numero de prestacoes pagas e maior que o numero de prestacoes total
+void verificaPrestacoesPagas(DadosCliente* dados){
+    
+    int retorno;
+    char letra;
+
+    do{
+        do{
+            printf("\nNumero de prestacoes invalido: ");
+            retorno= scanf("%i",&dados->numPrestacoesPagas);
+            do{
+                letra=getchar();
+            }while(letra!='\n');
+
+        }while(retorno==0);
+    }while(dados->numPrestacoesPagas > dados->numPrestacoes);
+}
+
+//Imprime os dados e o tamanho da lista
+void imprime (Lista *lista){
+
+    if(Vazia(lista)){
+        return printf("Lista vazia");
+    }
+
+    NoDadosCliente *aux = lista->primeiroNoLista; /* variável auxiliar para percorrer a lista */
+
+    while(aux != NULL){
+        printf("\n||||||||||||||||||||||||||||||||||||||||||||||||\n");
+        printf("\n\tCliente = %s", aux->dados.nomeCliente);
+        printf("\n\tValor: R$ %.2f", aux->dados.valorDivida);
+        printf("\n\tNumero de prestacoes pagas = %d", aux->dados.numPrestacoesPagas);
+        printf("\n\tParcelas restantes = %d", (aux->dados.numPrestacoes - aux->dados.numPrestacoesPagas));
+        float parcela = (aux->dados.valorDivida / aux->dados.numPrestacoes);
+        printf("\n\tSaldo devedor = R$ %.2f\n\n", (parcela*(aux->dados.numPrestacoes - aux->dados.numPrestacoesPagas)));
+
+        aux = aux->proximo;
+    }
+    printf("\n\t||Tamanho: %d||", lista->tam);
+}
+
+//Retorna 1, caso lista vazia
+int Vazia(Lista *lista){
+    return (lista->primeiroNoLista == NULL || lista->primeiroNoLista == 0 || lista->tam == 0);
+}
+
+//Retorna indice de um no, dado o nome para busca
+int indiceNo (Lista *lista){
     char nomeSolicitado[50];
 
     //Solicita nome para busca
@@ -152,54 +246,158 @@ int buscarNome (Lista *lista){
     printf("\nDigite o nome do cliente: ");
     fgets(nomeSolicitado,50,stdin);
     fflush(stdout);
-    printf("%s", nomeSolicitado);
 
     NoDadosCliente* aux = lista->primeiroNoLista;
 
-    //VERIFICAR SE EH NECESSARIO INICIAR COMO 1 OU 0//
-    int index = 0;
+    if(aux != NULL){
 
-    while(aux->dados.nomeCliente != nomeSolicitado && aux->proximo != NULL){
-        aux = aux->proximo;
-        index++;
-    }
-    if (aux != NULL){
-        printf("\nIndex: %d", index);
-        return index;
+        //VERIFICAR SE EH NECESSARIO INICIAR COMO 1 OU 0//
+        int index = 0;
+
+        while(strcmp(aux->dados.nomeCliente, nomeSolicitado) != 0 && aux){
+            aux = aux->proximo;
+            index++;
+        }
+        if (aux != NULL){
+            return index;
+        }
+
+        printf("\nCliente nao pertencente a lista\n");
+        return -1;
     }
 
-    printf("\nCliente nao pertencente a lista\n");
-    return -1;
+    return printf("\n\n\tLista vazia");
+
+}
+
+//Retorna o no da posicao informada
+NoDadosCliente* noNaPosicao(Lista *lista, int index){
+    if(index >= 0 && index < lista->tam){
+        index;
+        NoDadosCliente *aux = lista->primeiroNoLista;
+        for(int i = 0; i < index; i++){
+            aux  = aux->proximo;
+        }
+        return aux;
+    }
+    return NULL;
+}
+
+//Retorna no via index
+NoDadosCliente* buscarNome(Lista *lista){
+    int index = indiceNo(lista);
+    NoDadosCliente *aux;
+    aux = noNaPosicao(lista, index);
+
+    return aux;
+}
+
+//Atualizada o numero de prestacoes pagas
+void attNumPrestacoesPagas(Lista *lista, NoDadosCliente *noSolicitado){
+
+    if(Vazia(lista)){
+        return printf("Lista vazia");
+    }
+
+    NoDadosCliente *aux = noSolicitado;
+    
+
+    if(aux){
+        printf("\nNumero de prestacoes atual: %d", aux->dados.numPrestacoesPagas);
+
+        int att;
+        printf("\nDigite o numero atualizado de prestacoes pagas: ");
+        scanf("%d", &att);
+        aux->dados.numPrestacoesPagas = att;
+        fflush(stdin);
+        if(aux->dados.numPrestacoesPagas == aux->dados.numPrestacoes){
+            printf("\n\n\tAtualizacao: Todas as parcelas pagas!");
+            printf("\n\n\tRemovendo cliente da lista...");
+            removeCliente(lista, aux);
+        }
+    }
+
 
 }
 
 //Remove um cliente de acordo com o indice
-void removeCliente(Lista *lista){
-    
+void removeCliente(Lista *lista, NoDadosCliente *noSolicitado){
+
+    printf("\n\n\tTamanho lista atual: %d", lista->tam);
+
+    NoDadosCliente *aux = lista->primeiroNoLista;
+
+    //Caso tenha apenas um elemento na lista
+    if(lista->tam == 1){
+        free(aux);
+        lista->primeiroNoLista = NULL;
+        lista->tam --;
+    }
+
+    //Caso o elemento buscado seja o no cabeca
+    if(aux && aux == noSolicitado){
+        lista->primeiroNoLista = aux->proximo;
+        free(noSolicitado);
+        lista->tam --;
+    }
+
+    //Caso nao seja o no cabeca
+    while(aux && aux->proximo != noSolicitado){
+        aux = aux->proximo;
+    }
+    if(aux){
+        aux->proximo = noSolicitado->proximo;
+        free(noSolicitado);
+        lista->tam --;
+    }
+
+}
+
+//Imprime valor do Saldo devedor de um no
+void imprimeSaldoDevedor(Lista *lista, NoDadosCliente *noSolicitado){
+
+    printf("\n||||||||||||||||||||||||||||||||||||||||||||||||\n");
+    float parcela = (noSolicitado->dados.valorDivida / noSolicitado->dados.numPrestacoes);
+    printf("\n\tSaldo devedor = R$ %.2f", (parcela*(noSolicitado->dados.numPrestacoes - noSolicitado->dados.numPrestacoesPagas)));
+
 
 }
 
 int main(){
 
+    setlocale(LC_ALL, "Portuguese");
     int finalizar = 0;
     int opcao;
     Lista* listaClientes = criarLista();
+    NoDadosCliente *noSolicitado;
+    char nomeSolicitado[50];
 
 
    do{
-       printf("\n\n1 - Inserir cliente\n2 - imprimir\n3 - Buscar cliente pelo nome\n3 - Imprimir tamanho da lista\n8 - Sair\n\nOpcao: ");
+       printf("\n\n1 - Inserir cliente\n2 - imprimir\n3 - Buscar cliente pelo nome\n4 - Remover cliente via nome informado\n5 - Atualizar numero de prestacoes\n6 - Imprime saldo devedor do cliente\n8 - Sair\n\nOpcao: ");
        scanf("%d", &opcao);
        switch(opcao){
            case 1:
-                printf("\nTamanho: %d", listaClientes->tam);
                 insereCliente(listaClientes);
-                printf("\nATT Tamanho: %d", listaClientes->tam);
 				break;
            case 2:
 				imprime(listaClientes);
 				break;
            case 3:
-				buscarNome(listaClientes);
+                noSolicitado = buscarNome(listaClientes);
+                printf("\n\tNome retornado: %s", noSolicitado->dados.nomeCliente);
+				break;
+            case 4:
+                noSolicitado = buscarNome(listaClientes);
+				removeCliente(listaClientes, noSolicitado);
+				break;
+            case 5:
+                noSolicitado = buscarNome(listaClientes);
+                attNumPrestacoesPagas(listaClientes, noSolicitado);
+				break;
+            case 6:
+                noSolicitado = buscarNome(listaClientes);
+                imprimeSaldoDevedor(listaClientes, noSolicitado);
 				break;
            case 8:
                	printf("\nFinalizando...\n");
